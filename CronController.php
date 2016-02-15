@@ -5,7 +5,7 @@
  * Time: 14:51
  */
 
-namespace denisog\cronjobs;
+namespace elisteam\cronjobs;
 
 use yii;
 use yii\console\Controller;
@@ -243,20 +243,36 @@ RAW;
                     $stdout = $this->logFileName;
 
                 $stdout = $this->formatFileName($stdout, $task);
-                if(!is_writable($stdout)) {
-                    if ($isWin)
-                        $stdout = 'NUL';
-                    else
-                        $stdout = '/dev/null';
-                }
+                if (file_exists($stdout))
+                    if(!is_writable($stdout)) {
+                        if ($isWin)
+                            $stdout = 'NUL';
+                        else
+                            $stdout = '/dev/null';
+                    }
+                else
+                    if(!is_writable(dirname($stdout))) {
+                        if ($isWin)
+                            $stdout = 'NUL';
+                        else
+                            $stdout = '/dev/null';
+                    }
 
                 $stderr = isset($task['docs']['stderr'])?$this->formatFileName($task['docs']['stderr'], $task):$stdout;
-                if(!is_writable($stderr)) {
-                    if ($isWin)
-                        $stderr = 'NUL';
-                    else
-                        $stderr = '/dev/null';
-                }
+                if (file_exists($stderr))
+                    if(!is_writable($stderr)) {
+                        if ($isWin)
+                            $stderr = 'NUL';
+                        else
+                            $stderr = '/dev/null';
+                    }
+                else
+                    if(!is_writable(dirname($stderr))) {
+                        if ($isWin)
+                            $stderr = 'NUL';
+                        else
+                            $stderr = '/dev/null';
+                    }
                 
                 $this->runCommandBackground($command, $stdout, $stderr);
                 Yii::info('Running task ['.(++$runned).']: '.$task['command'].' '.$task['action'], self::CATEGORY_LOGS);
